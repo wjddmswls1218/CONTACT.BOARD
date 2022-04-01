@@ -10,6 +10,8 @@ const app = express();
 
 app.use(morgan(`dev`));
 app.use(cors());
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 
 app.post("/test/seed/database", (req, res) => {
   const title = [
@@ -92,6 +94,54 @@ app.get("/api/list", (req, res) => {
   });
 });
 
+app.post("/api/write", (req, res) => {
+  const { title, author, pass, content } = req.body;
+
+  const insertQuery = `
+    INSERT INTO board (
+      title,
+      author,
+      pass,
+      content,
+      createdAt
+    ) VALUES (
+      "${title}",
+      "${author}",
+      "${pass}",
+      "${content}",
+      now()
+    )
+  `;
+
+  db.query(insertQuery, (error, result) => {
+    if (error) {
+      console.log(error);
+      return;
+    }
+    return res.status(201).send("게시물 등록에 성공 하셨습니다.");
+  });
+});
+
+app.post("/api/delete", (req, res) => {
+  const { selectId } = req.body;
+
+  const deleteQuery = `
+    DELETE FROM board
+     WHERE id = ${selectId}
+  
+  `;
+
+  db.query(deleteQuery, (error, result) => {
+    if (error) {
+      console.group(error);
+      return;
+    }
+    return res.status(200).send("게시물 삭제 성공했습니다.");
+  });
+});
+
+app.post("/api/");
+
 app.listen(PORT, () => {
-  console.log(`${PORT} Talk To Me Backend Server Start`);
+  console.log(`${PORT} Talk To Me Backend Server Starting`);
 });

@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
 import Typist from "react-typist";
-import { Table, Modal } from "antd";
+import { Table, Modal, Button, Form, Input, message } from "antd";
 import axios from "axios";
 
 const Whole = styled.section`
@@ -24,12 +24,12 @@ const Wrapper = styled.div`
   width: 100%;
   height: ${(props) => props.height || "100%"};
   padding: 15px;
-  margin-top: ${(props) => props.mt || 0}px;
+  margin-top: ${(props) => props.mt || 0};
 
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  align-items: ${(props) => props.al || "center"};
+  justify-content: ${(props) => props.jc || "center"};
 `;
 
 const TitleText = styled.h2`
@@ -131,19 +131,31 @@ const _D_updateBtn = styled.button`
   cursor: pointer;
 `;
 
+const WriteTextArea = styled(Input.TextArea)`
+  resize: none;
+`;
+
 const MyWeb = () => {
   const [boardList, setBoardList] = useState([]);
   const [detailModal, setDetailModal] = useState(false);
+  const [writeModal, setWriteModal] = useState(false);
 
+  const [selectId, setSelectId] = useState(null);
   const [dTitle, setDTitle] = useState("");
   const [dAuthor, setDAuthor] = useState("");
   const [dCreatedAt, setDCreatedAt] = useState("");
   const [dContent, setDcontent] = useState("");
 
+  const writeForm = useRef();
+
   const getList = async () => {
     const result = await axios.get("http://localhost:4000/api/list");
 
     setBoardList(result.data);
+  };
+
+  const writeModalToggle = () => {
+    setWriteModal((prev) => !prev);
   };
 
   const detailModalToggle = () => {
@@ -155,6 +167,7 @@ const MyWeb = () => {
   }, []);
 
   const titleClickHandler = (data) => {
+    setSelectId(data.id);
     setDTitle(data.title);
     setDAuthor(data.author);
     setDCreatedAt(data.formatCreatedAt);
@@ -187,6 +200,37 @@ const MyWeb = () => {
       dataIndex: "hit",
     },
   ];
+
+  const writeFormHanddler = async (fd) => {
+    console.log(fd);
+
+    const result = await axios.post("http://localhost:4000/api/write", fd);
+
+    if (result.status === 201) {
+      message.success("새로운 게시글이 등록되었습니다.");
+      writeModalToggle();
+
+      writeForm.current.resetFields();
+
+      getList();
+    } else {
+      message.error("게시글 등록에 실패하셨습니다. 다시 시도해주세요");
+    }
+  };
+
+  const deleteHandler = async (d) => {
+    const result = await axios.post("http://localhost:4000/api/delete", {
+      selectId,
+    });
+
+    if (result.status === 200) {
+      message.success("게시글이 삭제되었습니다.");
+      detailModalToggle();
+      getList();
+    } else {
+      message.error("게시글 삭제에 실패하셨습니다.");
+    }
+  };
   return (
     <Whole>
       {/* title setion*/}
@@ -200,7 +244,10 @@ const MyWeb = () => {
       </Wrapper>
 
       {/*board setion */}
-      <Wrapper mt="100">
+      <Wrapper al="flex-end">
+        <Button type="primary" size="small" onClick={() => writeModalToggle()}>
+          작성
+        </Button>
         <MyTable
           rowKey="id"
           columns={columns}
@@ -209,6 +256,7 @@ const MyWeb = () => {
         />
       </Wrapper>
 
+      {/*********************************** DETAIL MODAL ***********************************/}
       <Modal
         footer={null}
         visible={detailModal}
@@ -220,9 +268,85 @@ const MyWeb = () => {
         <_D_author>{dAuthor}</_D_author>
         <_D_createdAt>{dCreatedAt}</_D_createdAt>
         <_D_content>{dContent}</_D_content>
-        <_D_deleteBtn>삭제</_D_deleteBtn>
+        <_D_deleteBtn onClick={() => deleteHandler()}>삭제</_D_deleteBtn>
         <_D_updateBtn>수정</_D_updateBtn>
       </Modal>
+      {/*********************************************************************************/}
+
+      {/*********************************** WRITE MODAL ***********************************/}
+      <Modal
+        footer={null}
+        visible={writeModal}
+        title="게시글 작성하기"
+        width="100%"
+        onCancel={() => writeModalToggle()}
+      >
+        <Form
+          ref={writeForm}
+          wrapperCol={{ span: 22 }}
+          labelCol={{ span: 2 }}
+          onFinish={writeFormHanddler}
+        >
+          <Form.Item
+            label="제목"
+            name="title"
+            rules={[
+              {
+                required: true,
+                messages: "제목은 필수 입력 사항입니다.",
+              },
+            ]}
+          >
+            <Input allowClear />
+          </Form.Item>
+
+          <Form.Item
+            label="작성자"
+            name="author"
+            rules={[
+              {
+                required: true,
+                messages: "작성자는 필수 입력 사항입니다.",
+              },
+            ]}
+          >
+            <Input allowClear />
+          </Form.Item>
+
+          <Form.Item
+            label="비밀번호"
+            name="pass"
+            rules={[
+              {
+                required: true,
+                messages: "비밀번호는 필수 입력 사항입니다.",
+              },
+            ]}
+          >
+            <Input type="password" allowClear maxLength={4} />
+          </Form.Item>
+
+          <Form.Item
+            label="내용"
+            name="content"
+            rules={[
+              {
+                required: true,
+                messages: "내용은 필수 입력 사항입니다.",
+              },
+            ]}
+          >
+            <WriteTextArea allowClear rows={14} />
+          </Form.Item>
+
+          <Wrapper al="flex-end">
+            <Button type="primary" htmlType="submit">
+              작성
+            </Button>
+          </Wrapper>
+        </Form>
+      </Modal>
+      {/*********************************************************************************/}
     </Whole>
   );
 };
