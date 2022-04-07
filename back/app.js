@@ -80,7 +80,8 @@ app.get("/api/list", (req, res) => {
           DATE_FORMAT(createdAt, "%Y.%m.%d")     AS    fromatCreatedAt,
           content,
           createdAt,
-          hit
+          hit,
+          pass
     FROM  board
    ORDER  BY createdAt  DESC
   `;

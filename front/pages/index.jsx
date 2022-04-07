@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import styled from "styled-components";
 import Typist from "react-typist";
 import { Table, Modal, Button, Form, Input, message } from "antd";
@@ -139,14 +139,17 @@ const MyWeb = () => {
   const [boardList, setBoardList] = useState([]);
   const [detailModal, setDetailModal] = useState(false);
   const [writeModal, setWriteModal] = useState(false);
+  const [passModal, setPassModal] = useState(false);
 
   const [selectId, setSelectId] = useState(null);
   const [dTitle, setDTitle] = useState("");
   const [dAuthor, setDAuthor] = useState("");
   const [dCreatedAt, setDCreatedAt] = useState("");
   const [dContent, setDcontent] = useState("");
+  const [dPass, setDPass] = useState(null);
 
   const writeForm = useRef();
+  const passForm = useRef();
 
   const getList = async () => {
     const result = await axios.get("http://localhost:4000/api/list");
@@ -162,6 +165,10 @@ const MyWeb = () => {
     setDetailModal((prev) => !prev);
   };
 
+  const passModalToggle = () => {
+    setPassModal((prev) => !prev);
+  };
+
   useEffect(() => {
     getList();
   }, []);
@@ -172,6 +179,7 @@ const MyWeb = () => {
     setDAuthor(data.author);
     setDCreatedAt(data.formatCreatedAt);
     setDcontent(data.content);
+    setDPass(data.pass);
 
     detailModalToggle();
   };
@@ -231,6 +239,25 @@ const MyWeb = () => {
       message.error("게시글 삭제에 실패하셨습니다.");
     }
   };
+
+  const passwordCheckHandler = useCallback(
+    (data) => {
+      const realPass = "" + dPass;
+      const comparePass = "" + data.pass;
+
+      if (realPass === comparePass) {
+        message.success("비밀번호가 일치하였습니다.");
+        passForm.current.resetFields();
+        passModalToggle();
+        deleteHandler();
+      } else {
+        message.error("비밀번호가 일치하지않습니다.");
+        passForm.current.resetFields();
+        return;
+      }
+    },
+    [passForm.current, dPass]
+  );
   return (
     <Whole>
       {/* title setion*/}
@@ -268,9 +295,10 @@ const MyWeb = () => {
         <_D_author>{dAuthor}</_D_author>
         <_D_createdAt>{dCreatedAt}</_D_createdAt>
         <_D_content>{dContent}</_D_content>
-        <_D_deleteBtn onClick={() => deleteHandler()}>삭제</_D_deleteBtn>
+        <_D_deleteBtn onClick={() => passModalToggle()}>삭제</_D_deleteBtn>
         <_D_updateBtn>수정</_D_updateBtn>
       </Modal>
+      {/*시험 개좆같당 ㅎㅎ*/}
       {/*********************************************************************************/}
 
       {/*********************************** WRITE MODAL ***********************************/}
@@ -347,6 +375,31 @@ const MyWeb = () => {
         </Form>
       </Modal>
       {/*********************************************************************************/}
+
+      <Modal
+        visible={passModal}
+        width="400px"
+        footer={null}
+        title="비밀번호 확인"
+        onCancel={() => passModalToggle()}
+      >
+        <Form
+          wrapperCol={{ span: 20 }}
+          labelCol={{ span: 5 }}
+          onFinish={passwordCheckHandler}
+          ref={passForm}
+        >
+          <Form.Item label="비밀번호" name="pass" rules={[{ required: true }]}>
+            <Input type="password" />
+          </Form.Item>
+
+          <Wrapper>
+            <Button size="small" type="danger" htmlType="submit">
+              확인
+            </Button>
+          </Wrapper>
+        </Form>
+      </Modal>
     </Whole>
   );
 };
