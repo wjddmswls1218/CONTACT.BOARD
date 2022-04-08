@@ -115,6 +115,23 @@ const _D_deleteBtn = styled.button`
   cursor: pointer;
 `;
 
+const __D_deleteBtn = styled.button`
+  margin-top: 20px;
+
+  width: 120px;
+  height: 27px;
+  line-height: 23px;
+  outline: none;
+  background-color: red;
+  border: none;
+  color: #ffff;
+  border-radius: 7px;
+
+  margin-left: 10px;
+
+  cursor: pointer;
+`;
+
 const _D_updateBtn = styled.button`
   margin-top: 20px;
   margin-left: 15px;
@@ -147,6 +164,8 @@ const MyWeb = () => {
   const [dCreatedAt, setDCreatedAt] = useState("");
   const [dContent, setDcontent] = useState("");
   const [dPass, setDPass] = useState(null);
+
+  const [] = useState(null);
 
   const writeForm = useRef();
   const passForm = useRef();
@@ -296,6 +315,7 @@ const MyWeb = () => {
         <_D_createdAt>{dCreatedAt}</_D_createdAt>
         <_D_content>{dContent}</_D_content>
         <_D_deleteBtn onClick={() => passModalToggle()}>삭제</_D_deleteBtn>
+        <__D_deleteBtn>삭제2</__D_deleteBtn>
         <_D_updateBtn>수정</_D_updateBtn>
       </Modal>
       {/*시험 개좆같당 ㅎㅎ*/}
