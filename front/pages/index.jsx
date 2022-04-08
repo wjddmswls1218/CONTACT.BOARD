@@ -157,6 +157,7 @@ const MyWeb = () => {
   const [detailModal, setDetailModal] = useState(false);
   const [writeModal, setWriteModal] = useState(false);
   const [passModal, setPassModal] = useState(false);
+  const [mpassModal, setmPassModal] = useState(false);
 
   const [selectId, setSelectId] = useState(null);
   const [dTitle, setDTitle] = useState("");
@@ -165,7 +166,12 @@ const MyWeb = () => {
   const [dContent, setDcontent] = useState("");
   const [dPass, setDPass] = useState(null);
 
-  const [] = useState(null);
+  const [mselectId, setMselectId] = useState(null);
+  const [mTitle, setMTitle] = useState("");
+  const [mAuthor, setMAuthor] = useState("");
+  const [mCreatedAt, m] = useState("");
+  const [] = useState("");
+  const [] = useState(null)
 
   const writeForm = useRef();
   const passForm = useRef();
@@ -186,6 +192,10 @@ const MyWeb = () => {
 
   const passModalToggle = () => {
     setPassModal((prev) => !prev);
+  };
+
+  const dpassModalToggle = () => {
+    setdPassModal((prev) => !prev);
   };
 
   useEffect(() => {
@@ -277,6 +287,10 @@ const MyWeb = () => {
     },
     [passForm.current, dPass]
   );
+
+  const dpasswordCheckHandler = useCallback((data) => {
+    const realDpass = "" + 
+  })
   return (
     <Whole>
       {/* title setion*/}
@@ -315,7 +329,7 @@ const MyWeb = () => {
         <_D_createdAt>{dCreatedAt}</_D_createdAt>
         <_D_content>{dContent}</_D_content>
         <_D_deleteBtn onClick={() => passModalToggle()}>삭제</_D_deleteBtn>
-        <__D_deleteBtn>삭제2</__D_deleteBtn>
+        <__D_deleteBtn onClick={() => dpassModalToggle()}>삭제2</__D_deleteBtn>
         <_D_updateBtn>수정</_D_updateBtn>
       </Modal>
       {/*시험 개좆같당 ㅎㅎ*/}
@@ -396,6 +410,7 @@ const MyWeb = () => {
       </Modal>
       {/*********************************************************************************/}
 
+      {/*********************************** DELETE MODAL ***********************************/}
       <Modal
         visible={passModal}
         width="400px"
@@ -419,6 +434,20 @@ const MyWeb = () => {
             </Button>
           </Wrapper>
         </Form>
+        {/*********************************************************************************/}
+
+        {/*********************************** DELETE2 MODAL ***********************************/}
+        <Modal
+          visible={dpassModal}
+          width="400%"
+          footer={null}
+          title="비밀번호확인"
+          onCancel={() => dpassModalToggle()}
+        >
+          <From wrapperCol={{ span: 20 }} labelCol={{ span: 5 }} onFinish={}></From>
+        </Modal>
+
+        {/*********************************************************************************/}
       </Modal>
     </Whole>
   );
