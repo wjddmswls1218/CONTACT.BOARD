@@ -169,9 +169,9 @@ const MyWeb = () => {
   const [mselectId, setMselectId] = useState(null);
   const [mTitle, setMTitle] = useState("");
   const [mAuthor, setMAuthor] = useState("");
-  const [mCreatedAt, m] = useState("");
-  const [] = useState("");
-  const [] = useState(null)
+  const [mCreatedAt, setMCreatedAt] = useState("");
+  const [mContent, setMContent] = useState("");
+  const [mPass, setMPass] = useState(null);
 
   const writeForm = useRef();
   const passForm = useRef();
@@ -211,6 +211,15 @@ const MyWeb = () => {
     setDPass(data.pass);
 
     detailModalToggle();
+  };
+
+  const mtitleClickHandler = (data) => {
+    setMselectId(data.id);
+    setMTitle(data.title);
+    setMAuthor(data.author);
+    setMCreatedAt(data.formatCreatedAt);
+    setMContent(data.content);
+    setMPass(data.pass);
   };
 
   const columns = [
@@ -288,9 +297,24 @@ const MyWeb = () => {
     [passForm.current, dPass]
   );
 
-  const dpasswordCheckHandler = useCallback((data) => {
-    const realDpass = "" + 
-  })
+  const dpasswordCheckHandler = useCallback(
+    (data) => {
+      const realDpass = "" + mPass;
+      const compareDPass = "" + data.pass;
+
+      if (realDpass === compareDPass) {
+        message.success("비밀번호 일치");
+        passForm.current.resetFields();
+        passModalToggle();
+        deleteHandler();
+      } else {
+        message.error("비밀번호 일치하지않음");
+        passForm.current.resetFields();
+        return;
+      }
+    },
+    [passForm.current, mPass]
+  );
   return (
     <Whole>
       {/* title setion*/}
@@ -444,7 +468,11 @@ const MyWeb = () => {
           title="비밀번호확인"
           onCancel={() => dpassModalToggle()}
         >
-          <From wrapperCol={{ span: 20 }} labelCol={{ span: 5 }} onFinish={}></From>
+          <From
+            wrapperCol={{ span: 20 }}
+            labelCol={{ span: 5 }}
+            onFinish={dpasswordCheckHandler}
+          ></From>
         </Modal>
 
         {/*********************************************************************************/}
